@@ -1,0 +1,7 @@
+docker image
+
+1 查找镜像 docker search xxxx
+docker search ubuntu 
+
+2 获取 docker pull xxxx
+docker pull ubuntu:16.04

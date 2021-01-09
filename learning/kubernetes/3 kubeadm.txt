@@ -1,0 +1,13 @@
+1 配置文件 /etc/yum.repos.d/mritd.repo
+
+[mritd]
+name=Mritd Repositry
+baseurl=https://yumrepo.b0.upaiyun.com/centos/7/x86_64
+enabled=1
+gpgcheck=1
+gpgkey=https://mritd.b0.upaiyun.com/keys/rpm.public.keys
+
+yum install -y docker kubelet kubeadm kubectl kubernetes-cni
+
+systemctl enable docker && systemctl start docker
+systemctl enable kubelet && systemctl start kubelet

@@ -1,0 +1,78 @@
+ymal语法：
+1 大小写敏感
+2 使用缩进表示层级关系
+3 缩进时不允许使用Tab键，只允许使用空格。
+4 缩进的空格数目不重要，只要相同层级的元素左侧对齐即可
+
+mysql-rc.yaml 
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "123456"
+		  
+		  
+		  
+创建rc		  
+[root@localhost ~]# kubectl create -f mysql-rc.yaml 
+replicationcontroller "mysql" created
+
+查看rc
+[root@localhost ~]# kubectl get rc
+NAME      DESIRED   CURRENT   READY     AGE
+mysql     1         0         0         2m
+
+查看pod创建情况
+[root@localhost ~]# kubectl get pods
+No resources found.
+
+1 
+yum install *rhsm*
+
+1 Generate a signing key:
+openssl genrsa -out /tmp/serviceaccount.key 2048
+
+2 Update /etc/kubernetes/apiserver:
+vim /etc/kubernetes/apiserver
+KUBE_API_ARGS="--service_account_key_file=/tmp/serviceaccount.key"
+
+3 Update /etc/kubernetes/controller-manager:
+vim /etc/kubernetes/controller-manager
+KUBE_CONTROLLER_MANAGER_ARGS="--service_account_private_key_file=/tmp/serviceaccount.key"
+
+4 restarted the kube-apiserver and kube-controller-manager services to restart the services
+service kube-apiserver restart
+service kube-controller-manager restart
+
+查看pod创建情况
+[root@localhost ~]# kubectl get pods
+NAME          READY     STATUS              RESTARTS   AGE
+mysql-jjjh5   0/1       ContainerCreating   0          1m
+
+
+2
+[root@localhost ~]# systemctl stop docker                                      f2d6cb40
+[root@localhost ~]# echo "DOCKER_OPTS=\"\$DOCKER_OPTS --registry-mirror=http://f2d6cb40.m.daocloud.io\"" | sudo tee -a /etc/default/docker
+DOCKER_OPTS="$DOCKER_OPTS --registry-mirror=http://f2d6cb40.m.daocloud.io"
+[root@localhost ~]# service docker restart
+
+
+
+kubectl describe pod xxxxxxxx
+

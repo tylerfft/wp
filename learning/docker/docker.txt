@@ -1,0 +1,16 @@
+
+1  docker install
+	https://docs.docker.com/install/linux/docker-ce/ubuntu/
+	
+	https://download.docker.com/linux/ubuntu/dists/
+	
+	
+	sudo dpkg -i /path/to/package.deb
+	
+	
+ssh
+	sudo apt-get update
+	sudo apt-get install openssh-server
+	sudo ps -e |grep ssh
+	sudo service ssh start
+	

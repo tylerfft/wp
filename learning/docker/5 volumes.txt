@@ -1,0 +1,16 @@
+docker Data Volumns 数据卷
+ 
+1 创建数据卷
+docker run -v执行时，如果带有-v执行时，如果带有-v 则会在容器内创建一个数据卷，多次重复使用，可以创建多个。
+也可以将本地已有目录到容器中作为数据卷。
+
+
+
+
+docker Data Volumn Containers
+
+1 首先创建数据卷容器
+docker run -it -v /dbdata --name dbdata ubuntu 
+ 
+2 与数据卷容器共享数据卷
+docker run -it --volumes-from dbdata --name myubuntu my/ubuntu /bin/bash

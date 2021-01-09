@@ -1,0 +1,27 @@
+docker container
+容器是镜像的一个运行实例，不同的是镜像是只读的，容器带有运行时的需要的可写文件层。
+也可以把容器当作一个简易版的linux系统环境。
+
+1 新建容器 docker create xxxx
+docker create -it ubuntu:16.04
+
+2 查看容器 docker ps -a
+docker pull ubuntu:16.04
+
+3 启动容器 docker start xxxx 
+docker pull ubuntu:16.04
+
+4 说明  新建并启动容器 docker run xxxx 
+docker run ubuntu:16.04
+
+5 进入容器 docker exec 
+docker exec -it xxxx /bin/bash
+
+6 终止容器 docker stoop 
+docker stop xxxx 
+
+7 导出容器 docker export 
+docker export -o myubuntu.tar 1f
+
+8 导入容器 docker import 
+docker docker import xxxx.tar xxxx        

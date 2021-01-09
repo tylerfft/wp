@@ -1,0 +1,60 @@
+docker repository（仓库）
+repository 是存放镜像的地方，之前的操作全部使用官方默认仓库，这里着重说明怎样搭建私有仓库
+ 
+1 使用registry镜像创建私有仓库
+docker run -d -p 5000:5000 registry
+默认会将仓库创建在容器的/tmp/registry目录下
+
+server 端
+ 
+1 生成自签名证书
+mkdir -p ~/registry/certs && cd ~/registry/certs
+openssl req -x509 -days 3650 -subj '/CN=reg.domain.com/' -nodes -newkey rsa:2048 -keyout registry.key -out registry.crt
+
+生成用户名密码
+mkdir -p ~/registry/auth && cd ~/registry/auth
+docker run --rm --entrypoint htpasswd registry -Bbn testuser password > ./htpasswd
+
+创建证书目录
+mkdir -p /etc/docker/certs.d/reg.domain.com:5000
+cp ~/registry/certs/registry.crt /etc/docker/certs.d/reg.domain.com:5000
+
+启动registry , 删除之前的 local_registry
+docker stop local_registry && docker rm local_registry
+docker run -d -p 5000:5000 --name=registry --restart=always -v ~/registry/auth:/auth -v ~/registry/certs:/certs -v /data/registry:/var/lib/registry -e REGISTRY_AUTH=htpasswd -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/registry.crt -e REGISTRY_HTTP_TLS_KEY=/certs/registry.key registry
+
+client 端
+
+证书相关
+通过scp将证书copy到本地
+sudo mkdir -p /etc/docker/certs.d/reg.domain.com:5000
+sudo scp -r shi@192.168.56.129:/root/registry/certs/registry.crt /etc/docker/certs.d/reg.domain.com:5000
+
+添加域名 
+在 /etc/hosts 添加一行 192.168.56.129 reg.domain.com
+sudo vim /etc/hosts
+
+
+docker login reg.domain.com:5000
+Username: testuser
+Password: password
+docker push reg.domain.com:5000/hello-world
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

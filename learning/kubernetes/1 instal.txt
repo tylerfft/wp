@@ -1,0 +1,110 @@
+CentOS 7
+
+方法一（推荐）： 离线使用 kubeadm 创建 kubernetes 1.9.2 集群
+https://my.oschina.net/binges/blog/1615955
+
+https://segmentfault.com/a/1190000012755243
+
+方法二： 
+
+1 关闭防火墙
+ systemctl disable firewalld
+ systemctl stop firewalld
+
+2 安装 etcd Kubernetes软件(自动安装docker)
+ yum install -y etcd kubernetes
+
+3 按顺序启动所有服务
+ systemctl start etcd
+ systemctl start docker
+ systemctl start kube-apiserver
+ systemctl start kube-controller-manager
+ systemctl start kube-scheduler
+ systemctl start kubelet
+ systemctl start kube-proxy
+ 
+ 
+ [root@localhost ~]# kubeadm init --kubernetes-version=v1.9.2 --pod-network-cidr=10.244.0.0/16
+[init] Using Kubernetes version: v1.9.2
+[init] Using Authorization modes: [Node RBAC]
+[preflight] Running pre-flight checks.
+        [WARNING FileExisting-crictl]: crictl not found in system path
+[certificates] Generated ca certificate and key.
+[certificates] Generated apiserver certificate and key.
+[certificates] apiserver serving cert is signed for DNS names [localhost.localdomain kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs [10.96.0.1 192.168.56.131]
+[certificates] Generated apiserver-kubelet-client certificate and key.
+[certificates] Generated sa key and public key.
+[certificates] Generated front-proxy-ca certificate and key.
+[certificates] Generated front-proxy-client certificate and key.
+[certificates] Valid certificates and keys now exist in "/etc/kubernetes/pki"
+[kubeconfig] Wrote KubeConfig file to disk: "admin.conf"
+[kubeconfig] Wrote KubeConfig file to disk: "kubelet.conf"
+[kubeconfig] Wrote KubeConfig file to disk: "controller-manager.conf"
+[kubeconfig] Wrote KubeConfig file to disk: "scheduler.conf"
+[controlplane] Wrote Static Pod manifest for component kube-apiserver to "/etc/kubernetes/manifests/kube-apiserver.yaml"
+[controlplane] Wrote Static Pod manifest for component kube-controller-manager to "/etc/kubernetes/manifests/kube-controller-manager.yaml"
+[controlplane] Wrote Static Pod manifest for component kube-scheduler to "/etc/kubernetes/manifests/kube-scheduler.yaml"
+[etcd] Wrote Static Pod manifest for a local etcd instance to "/etc/kubernetes/manifests/etcd.yaml"
+[init] Waiting for the kubelet to boot up the control plane as Static Pods from directory "/etc/kubernetes/manifests".
+[init] This might take a minute or longer if the control plane images have to be pulled.
+[apiclient] All control plane components are healthy after 27.003510 seconds
+[uploadconfig] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
+[markmaster] Will mark node localhost.localdomain as master by adding a label and a taint
+[markmaster] Master localhost.localdomain tainted and labelled with key/value: node-role.kubernetes.io/master=""
+[bootstraptoken] Using token: 3079f6.0157fb2a9e4bdcec
+[bootstraptoken] Configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
+[bootstraptoken] Configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+[bootstraptoken] Configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
+[bootstraptoken] Creating the "cluster-info" ConfigMap in the "kube-public" namespace
+[addons] Applied essential addon: kube-dns
+[addons] Applied essential addon: kube-proxy
+
+Your Kubernetes master has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+You can now join any number of machines by running the following on each node
+as root:
+
+  kubeadm join --token cbdc96.46ed48155a70d2a6 192.168.56.131:6443 --discovery-token-ca-cert-hash sha256:e03f799dca60bed67f2cfdd4203f42b80d72f77773cab0a4fee3292c949147b3
+
+  
+  [root@localhost ~]# 
+
+
+yum localinstall 
+
+
+vi /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+Environment="KUBELET_NETWORK_ARGS=--network-plugin=cni --cni-conf-dir=/etc/cni/net.d --cni-bin-dir=/opt/cni/bin"
+
+http://blog.csdn.net/andriy_dangli/article/details/79269348
+
+
+http://windgreen.me/
+https://my.oschina.net/binges/blog/1615955
+http://blog.csdn.net/andriy_dangli/article/details/79269348
+
+
+
+ 
+ 如果长时间（等待的时间超过3分钟以上）始终停留在“[init] This might take a minute or longer if the control plane images have to be pulled.”，就要查看/var/log/message里的内容，是什么错误导致初始化失败。
+排除错误后，先重置，再初始化。
+# 初始化过程出现错误时，使用下面的命令重置
+
+kubeadm reset
+
+# 重置后再初始化
+kubeadm init –kubernetes-version=v1.9.2 –pod-network-cidr=172.17.0.0/16 –apiserver-advertise-address=192.168.112.132
+上图中的token信息要记得保留，等会node的加入需要使用。如果忘记了，可以在master上通过kubeadm token list得到。默认token在24小时后过期，后续的node要加入集群需要在master节点上用下面的命令重新生成token。
+ 
+ kubeadm token create --print-join-command
+
